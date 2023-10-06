@@ -33,6 +33,11 @@ class BettingStrategyTest {
 			.hasMessageContaining("[ERROR]");
 	}
 
+	/**
+	 * 아래부터의 테스트 코드는, 게임에 승리하였을 때, 각 베팅 방식에 따라 상금을 기반으로
+	 * 유저의 잔고를 정확하게 업데이트 하는지에 대한 테스트입니다.
+	 */
+
 	@BeforeEach
 	void setUp() {
 		// 유저 이름은 상돌이, 초기 금액은 1억으로 설정
@@ -56,7 +61,7 @@ class BettingStrategyTest {
 
 	@DisplayName("단승식 게임에 대해 테스트합니다.")
 	@Test
-	void getReward_WhenStrategyIsWIN_CalculateCorrectly() {
+	void updateUserByBetStrategy_WhenStrategyIsWIN_CalculateCorrectly() {
 		bettingStrategy = BettingStrategy.from("단승식");
 		userBetInfo = UserBetInfo.getUserBetInfo("오번마임요", betAmount);
 
@@ -69,7 +74,7 @@ class BettingStrategyTest {
 
 	@DisplayName("복승식 게임에 대해 테스트합니다.")
 	@Test
-	void getReward_WhenStrategyIsQUINELLA_CalculateCorrectly() {
+	void updateUserByBetStrategy_WhenStrategyIsQUINELLA_CalculateCorrectly() {
 		bettingStrategy = BettingStrategy.from("복승식");
 		userBetInfo = UserBetInfo.getUserBetInfo("오번마임요,사번마임요", betAmount);
 
@@ -83,7 +88,7 @@ class BettingStrategyTest {
 	@DisplayName("연승식 게임에 대해 테스트합니다. 1,2,3등마를 맞추는 모든 경우를 확인합니다.")
 	@ParameterizedTest
 	@CsvSource(value = {"오번마임요/1.7", "사번마임요/1.3", "삼번마임요/2.0"}, delimiter = '/')
-	void getReward_WhenStrategyIsPLACE_CalculateCorrectly(String horseName, double oddsIfWin) {
+	void updateUserByBetStrategy_WhenStrategyIsPLACE_CalculateCorrectly(String horseName, double oddsIfWin) {
 		bettingStrategy = BettingStrategy.from("연승식");
 		userBetInfo = UserBetInfo.getUserBetInfo(horseName, betAmount);
 
@@ -96,7 +101,7 @@ class BettingStrategyTest {
 
 	@DisplayName("쌍승식 게임에 대해 테스트합니다.")
 	@Test
-	void getReward_WhenStrategyIsEXACTA_CalculateCorrectly() {
+	void updateUserByBetStrategy_WhenStrategyIsEXACTA_CalculateCorrectly() {
 		bettingStrategy = BettingStrategy.from("쌍승식");
 		userBetInfo = UserBetInfo.getUserBetInfo("오번마임요,사번마임요", betAmount);
 
@@ -110,7 +115,7 @@ class BettingStrategyTest {
 	@DisplayName("복연승식 게임에 대해 테스트합니다.")
 	@ParameterizedTest
 	@CsvSource(value = {"오번마임요,사번마임요/2.3", "오번마임요,삼번마임요/5.2", "사번마임요,삼번마임요/2.8"}, delimiter = '/')
-	void getReward_WhenStrategyIsQUINELLAPLACE_CalculateCorrectly(String horseNames, double oddsIfWin) {
+	void updateUserByBetStrategy_WhenStrategyIsQUINELLAPLACE_CalculateCorrectly(String horseNames, double oddsIfWin) {
 		bettingStrategy = BettingStrategy.from("복연승식");
 		userBetInfo = UserBetInfo.getUserBetInfo(horseNames, betAmount);
 
@@ -125,7 +130,7 @@ class BettingStrategyTest {
 	@ParameterizedTest
 	@ValueSource(strings = {"오번마임요,사번마임요,삼번마임요", "오번마임요,삼번마임요,사번마임요", "삼번마임요,사번마임요,오번마임요"
 	,"삼번마임요,오번마임요,사번마임요", "사번마임요,오번마임요,삼번마임요", "사번마임요,삼번마임요,오번마임요"})
-	void getReward_WhenStrategyIsTRIO_CalculateCorrectly(String horseNames) {
+	void updateUserByBetStrategy_WhenStrategyIsTRIO_CalculateCorrectly(String horseNames) {
 		bettingStrategy = BettingStrategy.from("삼복승식");
 		userBetInfo = UserBetInfo.getUserBetInfo(horseNames, betAmount);
 
@@ -138,7 +143,7 @@ class BettingStrategyTest {
 
 	@DisplayName("삼쌍승식 게임에 대해 테스트합니다.")
 	@Test
-	void getReward_WhenStrategyIsTRIFECTA_CalculateCorrectly() {
+	void updateUserByBetStrategy_WhenStrategyIsTRIFECTA_CalculateCorrectly() {
 		bettingStrategy = BettingStrategy.from("삼쌍승식");
 		userBetInfo = UserBetInfo.getUserBetInfo("오번마임요,사번마임요,삼번마임요", betAmount);
 
