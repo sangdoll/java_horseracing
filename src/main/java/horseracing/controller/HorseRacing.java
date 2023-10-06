@@ -59,23 +59,15 @@ public class HorseRacing {
 			final UserBetInfo betInfo = UserBetInfo.getUserBetInfo(picks, betAmount);
 
 			// 경주를 시작한 뒤, 경주 결과를 저장합니다.
-			race();
-			RaceResult result = RaceResult.from(raceHorses.getRankResult());
+			RaceResult result = raceAndMakeResult();
 
 			// 경주 결과와, 유저의 베팅 정보를 바탕으로 유저의 잔고를 업데이트한뒤 출력합니다.
 			user = bettingStrategy.updateUserByBetStrategy(user, betInfo, result);
 			OutputView.printMessage(bettingStrategy.getResultMessage(betInfo, result));
 			OutputView.printUserInfo(user.getUserName(), user.getBalance());
 
-			// 유저의 정보를 바탕으로, 게임을 종료하거나 재시작합니다.
-			restartOrExit(user);
-		}
-	}
-
-	private void race() {
-		for (int i = 0; i < MOVE_PER_GAME; i++) {
-			raceHorses.moveAllHorses(getNumberForRace());
-			OutputView.printMessage(raceHorses.getPrintResult());
+			// 유저의 잔고가 1000원 이하이면 바로 종료. 아니면 재시작 여부를 묻습니다.
+			restartOrExit();
 		}
 	}
 
@@ -83,21 +75,36 @@ public class HorseRacing {
 		return RandomNumbersList.getRandomNumbers(TOTAL_HORSES);
 	}
 
-	private void restartOrExit(User user) {
+	private RaceResult raceAndMakeResult() {
+		for (int i = 0; i < MOVE_PER_GAME; i++) {
+			raceHorses.moveAllHorses(getNumberForRace());
+			OutputView.printMessage(raceHorses.getPrintResult());
+		}
+		return RaceResult.from(raceHorses.getRankResult());
+	}
+
+	private void restartOrExit() {
 		if (user.getBalance() < 1000) {
 			OutputView.printNotEnoughBalanceMessage();
 			OutputView.printEndMessage();
 			gameOff();
 			return;
 		}
+		decideIfRestart();
+	}
 
+	private void decideIfRestart() {
 		String restartMessage = InputView.getRestartMessage();
 		if (restartMessage.equals("Y")) {
 			raceHorses = RaceHorses.getFromNames(HORSE_LIST);
+			return;
 		}
 		if (restartMessage.equals("N")) {
 			OutputView.printEndMessage();
 			gameOff();
+			return;
 		}
+		OutputView.printMessage("유효하지 않은 입력입니다. 다시 입력해주세요.");
+		decideIfRestart();
 	}
 }
