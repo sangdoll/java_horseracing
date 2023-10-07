@@ -56,7 +56,7 @@ public class HorseRacing {
 			// 말 리스트와, 베팅 금액을 받아 베팅 정보를 설정합니다.
 			final String picks = InputView.getUserChoicesByStrategy(HORSE_LIST, strategy);
 			final int betAmount = InputView.getBetAmount();
-			final UserBetInfo betInfo = UserBetInfo.getUserBetInfo(picks, betAmount);
+			final UserBetInfo betInfo = UserBetInfo.getUserBetInfo(picks, betAmount, user.getBalance());
 
 			// 경주를 시작한 뒤, 경주 결과를 저장합니다.
 			RaceResult result = raceAndMakeResult();
@@ -104,7 +104,6 @@ public class HorseRacing {
 			gameOff();
 			return;
 		}
-		OutputView.printMessage("유효하지 않은 입력입니다. 다시 입력해주세요.");
-		decideIfRestart();
+		throw new IllegalArgumentException("[ERROR] Y / N 만 입력 가능합니다.");
 	}
 }
