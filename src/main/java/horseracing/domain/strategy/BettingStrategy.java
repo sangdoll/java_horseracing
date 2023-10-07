@@ -8,14 +8,13 @@ import horseracing.domain.UserBetInfo;
 import horseracing.domain.horse.Horse;
 
 public interface BettingStrategy {
-
-	String win = "단승식";
-	String quinella = "복승식";
-	String place = "연승식";
-	String exacta = "쌍승식";
-	String quinellaPlace = "복연승식";
-	String trio = "삼복승식";
-	String trifecta = "삼쌍승식";
+	String WIN = "단승식";
+	String QUINELLA = "복승식";
+	String PLACE = "연승식";
+	String EXACTA = "쌍승식";
+	String QUINELLA_PLACE = "복연승식";
+	String TRIO = "삼복승식";
+	String TRIFECTA = "삼쌍승식";
 
 	int getReward(List<Horse> userPicks, RaceResult result, int betAmount);
 
@@ -29,34 +28,36 @@ public interface BettingStrategy {
 	}
 
 	default String getResultMessage(UserBetInfo betInfo, RaceResult result) {
-		int reward = getReward(betInfo.getUserPicks(), result, betInfo.getBetAmount());
+		final int reward = getReward(betInfo.getUserPicks(), result, betInfo.getBetAmount());
+		final String messageIfWin = "승리하였습니다! 획득 상금 : " + reward;
+		final String messageIfLose = "아쉽게도 맞추지 못하였습니다. 다음에 다시 도전해주세요 !";
 
 		if (reward == 0) {
-			return "아쉽게도 맞추지 못하였습니다. 다음에 다시 도전해주세요 !";
+			return messageIfLose;
 		}
-		return "승리하였습니다! 획득 상금 : " + reward;
+		return messageIfWin;
 	}
 
 	static BettingStrategy from(String strategy) {
-		if (win.equals(strategy)) {
+		if (WIN.equals(strategy)) {
 			return new Win();
 		}
-		if (quinella.equals(strategy)) {
+		if (QUINELLA.equals(strategy)) {
 			return new Quinella();
 		}
-		if (place.equals(strategy)) {
+		if (PLACE.equals(strategy)) {
 			return new Place();
 		}
-		if (exacta.equals(strategy)) {
+		if (EXACTA.equals(strategy)) {
 			return new Exacta();
 		}
-		if (quinellaPlace.equals(strategy)) {
+		if (QUINELLA_PLACE.equals(strategy)) {
 			return new QuinellaPlace();
 		}
-		if (trio.equals(strategy)) {
+		if (TRIO.equals(strategy)) {
 			return new Trio();
 		}
-		if (trifecta.equals(strategy)) {
+		if (TRIFECTA.equals(strategy)) {
 			return new Trifecta();
 		}
 		throw new IllegalArgumentException("[ERROR] 정확한 베팅 방식을 입력해주세요");
