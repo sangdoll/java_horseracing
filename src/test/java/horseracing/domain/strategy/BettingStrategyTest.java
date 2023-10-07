@@ -48,110 +48,95 @@ class BettingStrategyTest {
 
 		// 말 5마리를 준비하고, 첫 번째 말부터 각각 1,2,3,4,5 번 전진시킴
 		RaceHorses raceHorses = RaceHorses.getFromHorseList(List.of(
-			Horse.getFromNameAndLocation("일번마임요", 1),
-			Horse.getFromNameAndLocation("이번마임요", 2),
-			Horse.getFromNameAndLocation("삼번마임요", 3),
-			Horse.getFromNameAndLocation("사번마임요", 4),
-			Horse.getFromNameAndLocation("오번마임요", 5)
+			Horse.getFromNameAndLocation("오등입니다", 1),
+			Horse.getFromNameAndLocation("사등입니다", 2),
+			Horse.getFromNameAndLocation("삼등입니다", 3),
+			Horse.getFromNameAndLocation("이등입니다", 4),
+			Horse.getFromNameAndLocation("일등입니다", 5)
 		));
 
 		// 이를 기반으로, RaceResult 객체를 설정함.
 		raceResult = RaceResult.from(raceHorses.getRankResult());
 	}
 
-	@DisplayName("단승식 게임에 대해 테스트합니다.")
-	@Test
-	void updateUserByBetStrategy_WhenStrategyIsWIN_CalculateCorrectly() {
-		bettingStrategy = BettingStrategy.from("단승식");
-		userBetInfo = UserBetInfo.getUserBetInfo("오번마임요", betAmount);
+	/**
+	 * 모든 베팅 방식에 대한 1차적인 테스트를 진행합니다
+	 */
+	@DisplayName("모든 베팅 방식이 정확하게 결과를 리턴하는지 확인합니다.")
+	@ParameterizedTest
+	@CsvSource(value = {"단승식/일등입니다/6.6", "복승식/일등입니다,이등입니다/4.1", "쌍승식/일등입니다,이등입니다/12.7",
+		"연승식/일등입니다/1.7", "연승식/이등입니다/1.3", "연승식/삼등입니다/2.0",
+		"복연승식/일등입니다,이등입니다/2.3", "복연승식/일등입니다,삼등입니다/5.2", "복연승식/이등입니다,삼등입니다/2.8",
+		"삼복승식/일등입니다,이등입니다,삼등입니다/6.9", "삼쌍승식/일등입니다,이등입니다,삼등입니다/56.1"}, delimiter = '/')
+	void updateUserByBetStrategy_ForAllStrategy_ReturnCorrectResult(String strategy, String horseNames, double odd) {
+		bettingStrategy = BettingStrategy.from(strategy);
+		userBetInfo = UserBetInfo.getUserBetInfo(horseNames, betAmount, user.getBalance());
 
-		// 게임에서 승리했을 시에, 예상되는 잔고
-		int expectedBalance = user.getBalance() - betAmount + (int)(betAmount * 6.6);
+		// 게임에서 승리했을 때, 예상되는 유저의 잔고
+		int reward = (int)(betAmount * odd);
+		int expectedBalance = (user.getBalance() - betAmount) + reward;
 
+		// 메서드가 정확히 승리를 기반으로 유저의 정보를 업데이트 하여 리턴하는지 확인
 		assertThat(bettingStrategy.updateUserByBetStrategy(user, userBetInfo, raceResult))
 			.isEqualTo(new User(user.getUserName(), expectedBalance));
 	}
 
-	@DisplayName("복승식 게임에 대해 테스트합니다.")
-	@Test
-	void updateUserByBetStrategy_WhenStrategyIsQUINELLA_CalculateCorrectly() {
+	/**
+	 * 복승식, 복연승식, 삼복승식은 순서를 고려하지 않으므로,
+	 * 모든 순서를 넣어 정상적으로 작동하는지 다시 한 번 테스트하였습니다.
+	 */
+
+	@DisplayName("모든 가능한 순서를 넣어, 복승식에 대해 테스트합니다.")
+	@ParameterizedTest
+	@ValueSource(strings = {"일등입니다,이등입니다", "이등입니다,일등입니다"})
+	void updateUserByBetStrategy_ForAllCaseInQUINELLA_ReturnCorrectResult(String horseNames) {
+		final double odd = 4.1;
 		bettingStrategy = BettingStrategy.from("복승식");
-		userBetInfo = UserBetInfo.getUserBetInfo("오번마임요,사번마임요", betAmount);
+		userBetInfo = UserBetInfo.getUserBetInfo(horseNames, betAmount, user.getBalance());
 
-		// 게임에서 승리했을 시에, 예상되는 잔고
-		int expectedBalance = user.getBalance() - betAmount + (int)(betAmount * 4.1);
+		// 게임에서 승리했을 때, 예상되는 유저의 잔고
+		int reward = (int)(betAmount * odd);
+		int expectedBalance = (user.getBalance() - betAmount) + reward;
 
+		// 메서드가 정확히 승리를 기반으로 유저의 정보를 업데이트 하여 리턴하는지 확인
 		assertThat(bettingStrategy.updateUserByBetStrategy(user, userBetInfo, raceResult))
 			.isEqualTo(new User(user.getUserName(), expectedBalance));
 	}
 
-	@DisplayName("연승식 게임에 대해 테스트합니다. 1,2,3등마를 맞추는 모든 경우를 확인합니다.")
+	@DisplayName("모든 가능한 순서를 넣어, 복연승식에 대해 테스트합니다.")
 	@ParameterizedTest
-	@CsvSource(value = {"오번마임요/1.7", "사번마임요/1.3", "삼번마임요/2.0"}, delimiter = '/')
-	void updateUserByBetStrategy_WhenStrategyIsPLACE_CalculateCorrectly(String horseName, double oddsIfWin) {
-		bettingStrategy = BettingStrategy.from("연승식");
-		userBetInfo = UserBetInfo.getUserBetInfo(horseName, betAmount);
-
-		// 게임에서 승리했을 시에, 예상되는 잔고
-		int expectedBalance = user.getBalance() - betAmount + (int)(betAmount * oddsIfWin);
-
-		assertThat(bettingStrategy.updateUserByBetStrategy(user, userBetInfo, raceResult))
-			.isEqualTo(new User(user.getUserName(), expectedBalance));
-	}
-
-	@DisplayName("쌍승식 게임에 대해 테스트합니다.")
-	@Test
-	void updateUserByBetStrategy_WhenStrategyIsEXACTA_CalculateCorrectly() {
-		bettingStrategy = BettingStrategy.from("쌍승식");
-		userBetInfo = UserBetInfo.getUserBetInfo("오번마임요,사번마임요", betAmount);
-
-		// 게임에서 승리했을 시에, 예상되는 잔고
-		int expectedBalance = user.getBalance() - betAmount + (int)(betAmount * 12.7);
-
-		assertThat(bettingStrategy.updateUserByBetStrategy(user, userBetInfo, raceResult))
-			.isEqualTo(new User(user.getUserName(), expectedBalance));
-	}
-
-	@DisplayName("복연승식 게임에 대해 테스트합니다.")
-	@ParameterizedTest
-	@CsvSource(value = {"오번마임요,사번마임요/2.3", "오번마임요,삼번마임요/5.2", "사번마임요,삼번마임요/2.8"}, delimiter = '/')
-	void updateUserByBetStrategy_WhenStrategyIsQUINELLAPLACE_CalculateCorrectly(String horseNames, double oddsIfWin) {
+	@CsvSource(value = {"일등입니다,이등입니다/2.3", "이등입니다,일등입니다/2.3",
+		"일등입니다,삼등입니다/5.2", "삼등입니다,일등입니다/5.2",
+		"이등입니다,삼등입니다/2.8", "삼등입니다,이등입니다/2.8"}, delimiter = '/')
+	void updateUserByBetStrategy_ForAllCaseInQUINELLAPLACE_ReturnCorrectResult(String horseNames, double odd) {
 		bettingStrategy = BettingStrategy.from("복연승식");
-		userBetInfo = UserBetInfo.getUserBetInfo(horseNames, betAmount);
+		userBetInfo = UserBetInfo.getUserBetInfo(horseNames, betAmount, user.getBalance());
 
-		// 게임에서 승리했을 시에, 예상되는 잔고
-		int expectedBalance = user.getBalance() - betAmount + (int)(betAmount * oddsIfWin);
+		// 게임에서 승리했을 때, 예상되는 유저의 잔고
+		int reward = (int)(betAmount * odd);
+		int expectedBalance = (user.getBalance() - betAmount) + reward;
 
+		// 메서드가 정확히 승리를 기반으로 유저의 정보를 업데이트 하여 리턴하는지 확인
 		assertThat(bettingStrategy.updateUserByBetStrategy(user, userBetInfo, raceResult))
 			.isEqualTo(new User(user.getUserName(), expectedBalance));
 	}
 
-	@DisplayName("삼복승식 게임에 대해 모든 가능한 순서를 넣어 테스트합니다. ")
+	@DisplayName("모든 가능한 순서를 넣어, 삼복승식에 대해 테스트합니다.")
 	@ParameterizedTest
-	@ValueSource(strings = {"오번마임요,사번마임요,삼번마임요", "오번마임요,삼번마임요,사번마임요", "삼번마임요,사번마임요,오번마임요"
-	,"삼번마임요,오번마임요,사번마임요", "사번마임요,오번마임요,삼번마임요", "사번마임요,삼번마임요,오번마임요"})
-	void updateUserByBetStrategy_WhenStrategyIsTRIO_CalculateCorrectly(String horseNames) {
+	@ValueSource(strings = {"일등입니다,이등입니다,삼등입니다", "일등입니다,삼등입니다,이등입니다",
+		"이등입니다,일등입니다,삼등입니다", "이등입니다,삼등입니다,일등입니다",
+		"삼등입니다,일등입니다,이등입니다", "삼등입니다,이등입니다,일등입니다"})
+	void updateUserByBetStrategy_ForAllCaseInTRIO_ReturnCorrectResult(String horseNames) {
+		final double odd = 6.9;
 		bettingStrategy = BettingStrategy.from("삼복승식");
-		userBetInfo = UserBetInfo.getUserBetInfo(horseNames, betAmount);
+		userBetInfo = UserBetInfo.getUserBetInfo(horseNames, betAmount, user.getBalance());
 
-		// 게임에서 승리했을 시에, 예상되는 잔고
-		int expectedBalance = user.getBalance() - betAmount + (int)(betAmount * 6.9);
+		// 게임에서 승리했을 때, 예상되는 유저의 잔고
+		int reward = (int)(betAmount * odd);
+		int expectedBalance = (user.getBalance() - betAmount) + reward;
 
+		// 메서드가 정확히 승리를 기반으로 유저의 정보를 업데이트 하여 리턴하는지 확인
 		assertThat(bettingStrategy.updateUserByBetStrategy(user, userBetInfo, raceResult))
 			.isEqualTo(new User(user.getUserName(), expectedBalance));
 	}
-
-	@DisplayName("삼쌍승식 게임에 대해 테스트합니다.")
-	@Test
-	void updateUserByBetStrategy_WhenStrategyIsTRIFECTA_CalculateCorrectly() {
-		bettingStrategy = BettingStrategy.from("삼쌍승식");
-		userBetInfo = UserBetInfo.getUserBetInfo("오번마임요,사번마임요,삼번마임요", betAmount);
-
-		// 게임에서 승리했을 시에, 예상되는 잔고
-		int expectedBalance = user.getBalance() - betAmount + (int)(betAmount * 56.1);
-
-		assertThat(bettingStrategy.updateUserByBetStrategy(user, userBetInfo, raceResult))
-			.isEqualTo(new User(user.getUserName(), expectedBalance));
-	}
-
 }
