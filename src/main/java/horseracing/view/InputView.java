@@ -3,39 +3,39 @@ package horseracing.view;
 import java.util.Scanner;
 
 public class InputView {
-	private static final Scanner SCANNER = new Scanner(System.in);
+	private final Scanner scanner = new Scanner(System.in);
 	private static final String BAR = " | ";
 
-	public static String getUserName() {
+	public String getUserName() {
 		System.out.print("이름을 입력하세요 : ");
-		return SCANNER.nextLine();
+		return scanner.nextLine();
 	}
 
-	public static int getBalance() {
+	public int getBalance() {
 		System.out.print("현재 잔고를 입력하세요 : ");
-		return Integer.parseInt(SCANNER.nextLine());
+		return Integer.parseInt(scanner.nextLine());
 	}
 
-	public static String getStrategy() {
+	public String getStrategy() {
 		System.out.println("단승식, 연승식, 복승식, 쌍승식, 복연승식, 삼복승식, 삼쌍승식이 있습니다.");
 		System.out.print("게임 방식을 입력해주세요 : ");
-		return SCANNER.nextLine();
+		return scanner.nextLine();
 	}
 
-	public static int getBetAmount() {
+	public int getBetAmount() {
 		System.out.print("베팅할 금액을 입력하세요 : ");
-		return Integer.parseInt(SCANNER.nextLine());
+		return Integer.parseInt(scanner.nextLine());
 	}
 
-	public static String getUserChoicesByStrategy(String horseList, String strategy) {
+	public String getUserChoicesByStrategy(String horseList, String strategy) {
 		String reformatted = horseList.replaceAll(",", BAR);
 		System.out.println("오늘의 경주마 목록입니다.");
 		System.out.println(reformatted);
 		printMessageByStrategy(strategy);
-		return SCANNER.nextLine();
+		return scanner.nextLine();
 	}
 
-	public static void printMessageByStrategy(String strategy) {
+	public void printMessageByStrategy(String strategy) {
 		final String choiceOneHorse = "단승식 / 연승식";
 		final String choiceTwoHorses = "복승식 / 쌍승식 / 복연승식";
 		final String choiceThreeHorses = "삼복승식 / 삼쌍승식";
@@ -53,8 +53,8 @@ public class InputView {
 		}
 	}
 
-	public static String getRestartMessage() {
+	public String getRestartMessage() {
 		System.out.println("다시 시도하려면 Y, 종료하려면 N를 입력해주세요");
-		return SCANNER.nextLine();
+		return scanner.nextLine();
 	}
 }
