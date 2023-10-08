@@ -7,8 +7,8 @@ public class User {
 	private final int balance;
 
 	public User(String userName, int balance) {
-		if (balance < 1000) {
-			throw new IllegalArgumentException("[ERROR] 잔고는 1000원 이상이어야 합니다.");
+		if (balance < 0) {
+			throw new IllegalArgumentException("[ERROR] 잔고는 음수일 수 없습니다.");
 		}
 		this.userName = userName;
 		this.balance = balance;
