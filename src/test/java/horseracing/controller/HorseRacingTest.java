@@ -10,7 +10,6 @@ import java.io.PrintStream;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,7 +39,7 @@ class HorseRacingTest {
 	 */
 	@DisplayName("게임이 정상적으로 작동하고, 종료되는지 확인합니다.")
 	@Test
-	void startGame() {
+	void startGame_AfterBetTwice_CompleteGame() {
 		// 처음 잔고는 10만원이고, 단승식으로 두 번 50000원씩 파이팅대디에게 베팅하도록 설정
 		String input = "상돌이\n100000\n단승식\n파이팅대디\n50000\nY\n단승식\n파이팅대디\n50000\nN";
 		InputStream in = new ByteArrayInputStream(input.getBytes());
@@ -82,6 +81,35 @@ class HorseRacingTest {
 	}
 
 	/**
+	 * 잔고가 1000원 미만이 되도록 게임을 설정하고, 잔고 부족 메시지를 출력 후 종료시키는지 확인합니다.
+	 */
+	@DisplayName("잔고가 1000원 미만이 되었을 때, 메시지를 정확히 출력하고 종료하는지 확인합니다.")
+	@Test
+	void startGame_InBalanceUnder1000Case_CompleteGame() {
+		// 처음 잔고는 10만원이고, 연승식으로 99001원을 베팅하도록 설정
+		String input = "상돌이\n100000\n연승식\n파이팅대디\n99001";
+		InputStream in = new ByteArrayInputStream(input.getBytes());
+		System.setIn(in);
+
+		// 파이팅대디가 3등안에 들지 못하여, 잔고가 1000원 미만이 되도록 게임을 설정
+		HorseRacing horseRacing = new HorseRacing(new InputView(), new OutputView()) {
+			@Override
+			protected List<Integer> getNumberForRace() {
+				return List.of(0, 0, 0, 0, 0, 0, 0, 3, 2, 1);
+			}
+		};
+
+		horseRacing.startGame();
+		assertThat(out.toString()).contains(
+			"경마 게임에 오신것을 환영합니다",
+			"아쉽게도 맞추지 못하였습니다. 다음에 다시 도전해주세요 !",
+			"상돌이님의 현재 잔고는 999원 입니다.",
+			"잔고가 부족하여 재시작할 수 없습니다. 게임을 종료합니다.",
+			"감사합니다. 안녕히 가세요."
+		);
+	}
+
+	/**
 	 * HorseRacing 클래스에서의 예외 발생에 대해 테스트합니다.
 	 */
 
@@ -99,7 +127,6 @@ class HorseRacingTest {
 			.isInstanceOf(IllegalArgumentException.class)
 			.hasMessageContaining("[ERROR]");
 	}
-
 
 	@DisplayName("Y / N을 제외한 다른 값을 입력했을 때, 예외를 발생시키는지 확인합니다.")
 	@Test
