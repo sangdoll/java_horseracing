@@ -6,21 +6,21 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import horseracing.domain.BetProcessor;
 import horseracing.domain.RaceResult;
 import horseracing.domain.User;
-import horseracing.domain.UserBetInfo;
 import horseracing.domain.horse.Horse;
 import horseracing.domain.horse.RaceHorses;
+import horseracing.domain.util.NamesToHorseListParser;
 
 class BettingStrategyTest {
 	BettingStrategy bettingStrategy;
 	User user;
-	UserBetInfo userBetInfo;
+	BetProcessor betProcessor;
 	RaceResult raceResult;
 	int betAmount;
 
@@ -70,14 +70,14 @@ class BettingStrategyTest {
 		"삼복승식/일등입니다,이등입니다,삼등입니다/6.9", "삼쌍승식/일등입니다,이등입니다,삼등입니다/56.1"}, delimiter = '/')
 	void updateUserByBetStrategy_ForAllStrategy_ReturnCorrectResult(String strategy, String horseNames, double odd) {
 		bettingStrategy = BettingStrategy.from(strategy);
-		userBetInfo = UserBetInfo.getUserBetInfo(horseNames, betAmount, user.getBalance());
+		List<Horse> usersPick = NamesToHorseListParser.parse(horseNames);
 
 		// 게임에서 승리했을 때, 예상되는 유저의 잔고
 		int reward = (int)(betAmount * odd);
 		int expectedBalance = (user.getBalance() - betAmount) + reward;
 
 		// 메서드가 정확히 승리를 기반으로 유저의 정보를 업데이트 하여 리턴하는지 확인
-		assertThat(bettingStrategy.updateUserByBetStrategy(user, userBetInfo, raceResult))
+		assertThat(bettingStrategy.updateUserBalance(user, usersPick, betAmount, raceResult))
 			.isEqualTo(new User(user.getUserName(), expectedBalance));
 	}
 
@@ -92,14 +92,14 @@ class BettingStrategyTest {
 	void updateUserByBetStrategy_ForAllCaseInQUINELLA_ReturnCorrectResult(String horseNames) {
 		final double odd = 4.1;
 		bettingStrategy = BettingStrategy.from("복승식");
-		userBetInfo = UserBetInfo.getUserBetInfo(horseNames, betAmount, user.getBalance());
+		List<Horse> usersPick = NamesToHorseListParser.parse(horseNames);
 
 		// 게임에서 승리했을 때, 예상되는 유저의 잔고
 		int reward = (int)(betAmount * odd);
 		int expectedBalance = (user.getBalance() - betAmount) + reward;
 
 		// 메서드가 정확히 승리를 기반으로 유저의 정보를 업데이트 하여 리턴하는지 확인
-		assertThat(bettingStrategy.updateUserByBetStrategy(user, userBetInfo, raceResult))
+		assertThat(bettingStrategy.updateUserBalance(user, usersPick, betAmount, raceResult))
 			.isEqualTo(new User(user.getUserName(), expectedBalance));
 	}
 
@@ -110,14 +110,14 @@ class BettingStrategyTest {
 		"이등입니다,삼등입니다/2.8", "삼등입니다,이등입니다/2.8"}, delimiter = '/')
 	void updateUserByBetStrategy_ForAllCaseInQUINELLAPLACE_ReturnCorrectResult(String horseNames, double odd) {
 		bettingStrategy = BettingStrategy.from("복연승식");
-		userBetInfo = UserBetInfo.getUserBetInfo(horseNames, betAmount, user.getBalance());
+		List<Horse> usersPick = NamesToHorseListParser.parse(horseNames);
 
 		// 게임에서 승리했을 때, 예상되는 유저의 잔고
 		int reward = (int)(betAmount * odd);
 		int expectedBalance = (user.getBalance() - betAmount) + reward;
 
 		// 메서드가 정확히 승리를 기반으로 유저의 정보를 업데이트 하여 리턴하는지 확인
-		assertThat(bettingStrategy.updateUserByBetStrategy(user, userBetInfo, raceResult))
+		assertThat(bettingStrategy.updateUserBalance(user, usersPick, betAmount, raceResult))
 			.isEqualTo(new User(user.getUserName(), expectedBalance));
 	}
 
@@ -129,14 +129,14 @@ class BettingStrategyTest {
 	void updateUserByBetStrategy_ForAllCaseInTRIO_ReturnCorrectResult(String horseNames) {
 		final double odd = 6.9;
 		bettingStrategy = BettingStrategy.from("삼복승식");
-		userBetInfo = UserBetInfo.getUserBetInfo(horseNames, betAmount, user.getBalance());
+		List<Horse> usersPick = NamesToHorseListParser.parse(horseNames);
 
 		// 게임에서 승리했을 때, 예상되는 유저의 잔고
 		int reward = (int)(betAmount * odd);
 		int expectedBalance = (user.getBalance() - betAmount) + reward;
 
 		// 메서드가 정확히 승리를 기반으로 유저의 정보를 업데이트 하여 리턴하는지 확인
-		assertThat(bettingStrategy.updateUserByBetStrategy(user, userBetInfo, raceResult))
+		assertThat(bettingStrategy.updateUserBalance(user, usersPick, betAmount, raceResult))
 			.isEqualTo(new User(user.getUserName(), expectedBalance));
 	}
 }
