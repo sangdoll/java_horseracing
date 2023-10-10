@@ -14,6 +14,10 @@ public class User {
 		this.balance = balance;
 	}
 
+	public boolean isBalanceUnderThousand() {
+		return this.balance < 1000;
+	}
+
 	public String getUserName() {
 		return userName;
 	}
