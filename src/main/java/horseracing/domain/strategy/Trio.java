@@ -9,7 +9,7 @@ public final class Trio implements BettingStrategy{
 	private static final double ODDS = 6.9;
 
 	@Override
-	public int getReward(List<Horse> userPicks, RaceResult result, int betAmount) {
+	public int getReward(List<Horse> userPicks, int betAmount, RaceResult result) {
 		List<Horse> winnerToThird = result.getWinnerToThird();
 
 		if (isContainsAll(userPicks, winnerToThird)) {

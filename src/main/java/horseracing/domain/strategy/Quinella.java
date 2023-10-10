@@ -9,7 +9,7 @@ public final class Quinella implements BettingStrategy{
 	private static final double ODDS = 4.1;
 
 	@Override
-	public int getReward(List<Horse> userPicks, RaceResult result, int betAmount) {
+	public int getReward(List<Horse> userPicks, int betAmount, RaceResult result) {
 		List<Horse> winnerAndSecond = result.getWinnerAndSecond();
 		Horse first = userPicks.get(0);
 		Horse second = userPicks.get(1);

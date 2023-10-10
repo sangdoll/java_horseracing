@@ -11,7 +11,7 @@ public final class QuinellaPlace implements BettingStrategy {
 	private static final double ODDS_SECOND_AND_THIRD = 2.8;
 
 	@Override
-	public int getReward(List<Horse> userPicks, RaceResult result, int betAmount) {
+	public int getReward(List<Horse> userPicks, int betAmount, RaceResult result) {
 		Horse first = userPicks.get(0);
 		Horse second = userPicks.get(1);
 

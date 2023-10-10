@@ -9,7 +9,7 @@ public final class Trifecta implements BettingStrategy{
 	private static final double ODDS = 56.1;
 
 	@Override
-	public int getReward(List<Horse> userPicks, RaceResult result, int betAmount) {
+	public int getReward(List<Horse> userPicks, int betAmount, RaceResult result) {
 		if (userPicks.equals(result.getWinnerToThird())) {
 			return (int)(betAmount * ODDS);
 		}

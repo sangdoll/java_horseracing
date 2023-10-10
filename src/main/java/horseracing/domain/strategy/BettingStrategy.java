@@ -4,7 +4,6 @@ import java.util.List;
 
 import horseracing.domain.RaceResult;
 import horseracing.domain.User;
-import horseracing.domain.UserBetInfo;
 import horseracing.domain.horse.Horse;
 
 public interface BettingStrategy {
@@ -16,27 +15,15 @@ public interface BettingStrategy {
 	String TRIO = "삼복승식";
 	String TRIFECTA = "삼쌍승식";
 
-	int getReward(List<Horse> userPicks, RaceResult result, int betAmount);
+	int getReward(List<Horse> userPicks, int betAmount, RaceResult result);
 
-	default User updateUserByBetStrategy(User user, UserBetInfo betInfo, RaceResult result) {
-		final int betAmount = betInfo.getBetAmount();
-		final List<Horse> userPicks = betInfo.getUserPicks();
+	default User updateUserBalance(User user, List<Horse> userPicks, int betAmount, RaceResult result) {
 		final int balanceAfterBet = user.getBalance() - betAmount;
-		final int reward = getReward(userPicks, result, betAmount);
+		final int reward = getReward(userPicks, betAmount, result);
 
 		return new User(user.getUserName(), balanceAfterBet + reward);
 	}
 
-	default String getResultMessage(UserBetInfo betInfo, RaceResult result) {
-		final int reward = getReward(betInfo.getUserPicks(), result, betInfo.getBetAmount());
-		final String messageIfWin = "승리하였습니다! 획득 상금 : " + reward;
-		final String messageIfLose = "아쉽게도 맞추지 못하였습니다. 다음에 다시 도전해주세요 !";
-
-		if (reward == 0) {
-			return messageIfLose;
-		}
-		return messageIfWin;
-	}
 
 	static BettingStrategy from(String strategy) {
 		if (WIN.equals(strategy)) {

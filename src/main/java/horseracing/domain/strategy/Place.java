@@ -11,7 +11,7 @@ public final class Place implements BettingStrategy{
 	private static final double ODDS_THIRD = 2.0;
 
 	@Override
-	public int getReward(List<Horse> userPicks, RaceResult result, int betAmount) {
+	public int getReward(List<Horse> userPicks, int betAmount, RaceResult result) {
 		if (userPicks.equals(result.getWinner())) {
 			return (int)(betAmount * ODDS_WINNER);
 		}
